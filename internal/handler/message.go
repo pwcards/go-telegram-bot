@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"github.com/pwcards/go-telegram-bot/internal/config"
 	"log" //nolint:goimports
 
 	telegramApi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -11,9 +12,9 @@ func initBot(token string) (*telegramApi.BotAPI, error) {
 	return telegramApi.NewBotAPI(token)
 }
 
-func MessageHandler(token string) {
+func MessageHandler(cfg *config.Config) {
 	// Создание бота
-	bot, err := initBot(token)
+	bot, err := initBot(cfg.Telegram.Token)
 	if err != nil {
 		log.Panic(err)
 	}
