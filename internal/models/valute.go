@@ -10,6 +10,7 @@ type ValuteData struct {
 	Valute       struct {
 		Usd struct{ ValuteItem } `json:"USD"`
 		Eur struct{ ValuteItem } `json:"EUR"`
+		Gbp struct{ ValuteItem } `json:"GBP"`
 	} `json:"Valute"`
 }
 

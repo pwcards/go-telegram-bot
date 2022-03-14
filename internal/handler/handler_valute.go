@@ -8,11 +8,13 @@ import (
 	"github.com/pwcards/go-telegram-bot/internal/models"
 )
 
+const remoteSourceData = "https://www.cbr-xml-daily.ru/daily_json.js"
+
 var myClient = &http.Client{Timeout: 10 * time.Second}
 
 func GetRemoteDataValute() (*models.ValuteData, error) {
 	data := models.ValuteData{}
-	err := getJson("https://www.cbr-xml-daily.ru/daily_json.js", &data)
+	err := getJson(remoteSourceData, &data)
 	if err != nil {
 		return &data, err
 	}
