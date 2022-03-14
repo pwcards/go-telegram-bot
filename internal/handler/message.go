@@ -2,21 +2,27 @@ package handler
 
 import (
 	"fmt"
-	"github.com/pwcards/go-telegram-bot/internal/config"
 	"log" //nolint:goimports
 
 	telegramApi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/pkg/errors"
+	"github.com/pwcards/go-telegram-bot/internal/config"
 )
 
 func initBot(token string) (*telegramApi.BotAPI, error) {
 	return telegramApi.NewBotAPI(token)
 }
 
-func MessageHandler(cfg *config.Config) {
+func MessageHandler(cfg *config.Config) error {
 	// Создание бота
 	bot, err := initBot(cfg.Telegram.Token)
 	if err != nil {
 		log.Panic(err)
+	}
+
+	valute, err := GetRemoteDataValute()
+	if err != nil {
+		return errors.Wrap(err, "get valute remote source")
 	}
 
 	// Логирование пользователя, который зашел в bot.
@@ -43,18 +49,20 @@ func MessageHandler(cfg *config.Config) {
 
 		// Обработка команд.
 		// Команда - сообщение, начинающееся с "/"
-		switch update.Message.Command() {
-		case "start":
-			reply = "Привет. Я телеграм-бот"
-		case "hello":
-			reply = "world"
-		case "salary":
-			reply = "Мы еще не разработали логику расчёта твоей новой зарплаты."
+		if update.Message.IsCommand() {
+			switch update.Message.Command() {
+			case "start":
+				reply = "Привет! 🤗\n Я бот, который рассчитает твою зарплату по новому курсу 💰💰💰. \n Укажи свою текущую зарплату в рублях."
+			case "usd_now":
+				reply = fmt.Sprintf("Текущий курс доллара: %f руб.", valute.Valute.Usd.Value)
+			}
 		}
 
 		// Создаем ответное сообщение
 		sendMessage(bot, update, reply)
 	}
+
+	return nil
 }
 
 // sendMessage отправит сообщение в ответ.

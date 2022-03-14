@@ -19,5 +19,8 @@ func Execute() {
 		log.Fatal(err)
 	}
 
-	handler.MessageHandler(cfg)
+	err = handler.MessageHandler(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
