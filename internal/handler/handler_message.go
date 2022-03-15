@@ -7,6 +7,12 @@ import (
 	telegramApi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/pkg/errors"
 	"github.com/pwcards/go-telegram-bot/internal/config"
+	"github.com/pwcards/go-telegram-bot/internal/models"
+)
+
+const (
+	ReplyWelcome = "Привет, %s!\nВас приветствует бот для отслеживания курсов валют.\nВы можете отслеживать, как отдельную валюту сами, или настроить ежедневное оповещение.\n\nСейчас мы отслеживаем курсы %s, %s и %s."
+	ReplyValute  = "Текущий курс %s: <strong>%.2f руб.</strong>"
 )
 
 func initBot(token string) (*telegramApi.BotAPI, error) {
@@ -52,7 +58,13 @@ func MessageHandler(cfg *config.Config) error {
 			// Команда - сообщение, начинающееся с "/"
 			switch update.Message.Command() {
 			case "start":
-				msg.Text = "Привет! 🤗\n Я бот, который рассчитает твою зарплату по новому курсу 💰💰💰. \n Укажи свою текущую зарплату в рублях."
+				msg.Text = fmt.Sprintf(
+					ReplyWelcome,
+					update.Message.From.FirstName,
+					models.GetValuteItemFullName(models.ValuteUSD),
+					models.GetValuteItemFullName(models.ValuteEUR),
+					models.GetValuteItemFullName(models.ValuteGBP),
+				)
 			}
 		} else {
 			switch update.Message.Text {
@@ -61,14 +73,32 @@ func MessageHandler(cfg *config.Config) error {
 			case "close":
 				msg.ReplyMarkup = telegramApi.NewRemoveKeyboard(true)
 
-			case CommandUSD:
-				msg.Text = fmt.Sprintf("Текущий курс доллара: %f руб.", valute.Valute.Usd.Value)
-			case CommandEUR:
-				msg.Text = fmt.Sprintf("Текущий курс евро: %f руб.", valute.Valute.Eur.Value)
-			case CommandGBP:
-				msg.Text = fmt.Sprintf("Текущий курс фунта стерлингов Соединенного королевства: %f руб.", valute.Valute.Gbp.Value)
+			case models.GetValuteItemShortName(models.ValuteUSD):
+				msg.ParseMode = "html"
+				msg.Text = fmt.Sprintf(
+					ReplyValute,
+					models.GetValuteItem(models.ValuteUSD).Name,
+					valute.Valute.Usd.Value,
+				)
+			case models.GetValuteItemShortName(models.ValuteEUR):
+				msg.ParseMode = "html"
+				msg.Text = fmt.Sprintf(
+					ReplyValute,
+					models.GetValuteItem(models.ValuteEUR).Name,
+					valute.Valute.Eur.Value,
+				)
+			case models.GetValuteItemShortName(models.ValuteGBP):
+				msg.ParseMode = "html"
+				msg.Text = fmt.Sprintf(""+
+					ReplyValute,
+					models.GetValuteItem(models.ValuteGBP).Name,
+					valute.Valute.Gbp.Value,
+				)
 			}
 		}
+
+		// Лог сообщения, которое ответил bot.
+		log.Printf("[%s] %s", "BOT", msg.Text)
 
 		// Отправка сообщения
 		if _, err := bot.Send(msg); err != nil {
