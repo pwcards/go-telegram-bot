@@ -34,7 +34,7 @@ func MessageHandler(cfg *config.Config) error {
 	// Логирование пользователя, который зашел в bot.
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
-	// Структура с конфигом для получения апдейтов
+	// Структура с конфигом для получения updates
 	u := telegramApi.NewUpdate(0)
 	u.Timeout = 60
 
@@ -61,9 +61,9 @@ func MessageHandler(cfg *config.Config) error {
 				msg.Text = fmt.Sprintf(
 					ReplyWelcome,
 					update.Message.From.FirstName,
-					models.GetValuteItemFullName(models.ValuteUSD),
-					models.GetValuteItemFullName(models.ValuteEUR),
-					models.GetValuteItemFullName(models.ValuteGBP),
+					models.GetValuteItemNameEmoji(models.ValuteUSD),
+					models.GetValuteItemNameEmoji(models.ValuteEUR),
+					models.GetValuteItemNameEmoji(models.ValuteGBP),
 				)
 			}
 		} else {
@@ -73,26 +73,22 @@ func MessageHandler(cfg *config.Config) error {
 			case "close":
 				msg.ReplyMarkup = telegramApi.NewRemoveKeyboard(true)
 
-			case models.GetValuteItemShortName(models.ValuteUSD):
+			case models.ValuteUSD, models.ValuteEUR, models.ValuteGBP:
+				objectValute, err := valute.GetObject("Valute", update.Message.Text)
+				if err != nil {
+					return errors.Wrap(err, "failed to get currency structure")
+				}
+
+				value, err := objectValute.GetFloat64("Value")
+				if err != nil {
+					return errors.Wrap(err, "failed to get currency value")
+				}
+
 				msg.ParseMode = "html"
 				msg.Text = fmt.Sprintf(
 					ReplyValute,
-					models.GetValuteItem(models.ValuteUSD).Name,
-					valute.Valute.Usd.Value,
-				)
-			case models.GetValuteItemShortName(models.ValuteEUR):
-				msg.ParseMode = "html"
-				msg.Text = fmt.Sprintf(
-					ReplyValute,
-					models.GetValuteItem(models.ValuteEUR).Name,
-					valute.Valute.Eur.Value,
-				)
-			case models.GetValuteItemShortName(models.ValuteGBP):
-				msg.ParseMode = "html"
-				msg.Text = fmt.Sprintf(""+
-					ReplyValute,
-					models.GetValuteItem(models.ValuteGBP).Name,
-					valute.Valute.Gbp.Value,
+					models.GetValuteItemName(update.Message.Text),
+					value,
 				)
 			}
 		}

@@ -7,9 +7,8 @@ const (
 )
 
 type Valute struct {
-	CharCode string `json:"CharCode"`
-	Name     string `json:"Name"`
-	Emoji    string `json:"Emoji"`
+	Name  string `json:"Name"`
+	Emoji string `json:"Emoji"`
 }
 
 var valuteMap = map[string]Valute{
@@ -31,12 +30,10 @@ func GetValuteItem(valute string) Valute {
 	return valuteMap[valute]
 }
 
-func GetValuteItemFullName(valute string) string {
-	item := valuteMap[valute]
-
-	return item.Name + " " + item.Emoji
+func GetValuteItemName(valute string) string {
+	return valuteMap[valute].Name
 }
 
-func GetValuteItemShortName(valute string) string {
+func GetValuteItemNameEmoji(valute string) string {
 	return valute + " " + valuteMap[valute].Emoji
 }

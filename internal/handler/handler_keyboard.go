@@ -7,14 +7,8 @@ import (
 
 var valuteKeyboard = telegramApi.NewReplyKeyboard(
 	telegramApi.NewKeyboardButtonRow(
-		telegramApi.NewKeyboardButton(
-			models.GetValuteItemShortName(models.ValuteUSD),
-		),
-		telegramApi.NewKeyboardButton(
-			models.GetValuteItemShortName(models.ValuteEUR),
-		),
-		telegramApi.NewKeyboardButton(
-			models.GetValuteItemShortName(models.ValuteGBP),
-		),
+		telegramApi.NewKeyboardButton(models.ValuteUSD),
+		telegramApi.NewKeyboardButton(models.ValuteEUR),
+		telegramApi.NewKeyboardButton(models.ValuteGBP),
 	),
 )
