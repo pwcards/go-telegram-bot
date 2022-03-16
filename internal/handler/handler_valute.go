@@ -11,7 +11,7 @@ const remoteSourceData = "https://www.cbr-xml-daily.ru/daily_json.js"
 
 var myClient = &http.Client{Timeout: 10 * time.Second}
 
-func GetRemoteDataValute() (*jason.Object, error) {
+func (h *Handler) GetRemoteDataValute() (*jason.Object, error) {
 	r, err := myClient.Get(remoteSourceData)
 	if err != nil {
 		return nil, err

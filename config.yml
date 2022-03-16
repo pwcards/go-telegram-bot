@@ -1,3 +1,13 @@
 # Server config
 telegram:
   token: "5268346289:AAEjBhmqA1wyAjPMXd7S7mP2r_6t9pKp9TM"
+
+mysql:
+  host: localhost
+  port: 3306
+  username: root
+  password: qwerty
+  dbname: valute_bot
+  connect_retry_ttl: 1
+  connect_retry_max: 1024
+  connect_check_ttl: 1

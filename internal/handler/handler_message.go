@@ -6,7 +6,6 @@ import (
 
 	telegramApi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/pkg/errors"
-	"github.com/pwcards/go-telegram-bot/internal/config"
 	"github.com/pwcards/go-telegram-bot/internal/models"
 )
 
@@ -15,18 +14,18 @@ const (
 	ReplyValute  = "Текущий курс %s: <strong>%.2f руб.</strong>"
 )
 
-func initBot(token string) (*telegramApi.BotAPI, error) {
+func (h *Handler) initBot(token string) (*telegramApi.BotAPI, error) {
 	return telegramApi.NewBotAPI(token)
 }
 
-func MessageHandler(cfg *config.Config) error {
+func (h *Handler) MessageHandler(cfg *models.Config) error {
 	// Создание бота
-	bot, err := initBot(cfg.Telegram.Token)
+	bot, err := h.initBot(cfg.Telegram.Token)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	valute, err := GetRemoteDataValute()
+	valute, err := h.GetRemoteDataValute()
 	if err != nil {
 		return errors.Wrap(err, "get valute remote source")
 	}
@@ -46,6 +45,16 @@ func MessageHandler(cfg *config.Config) error {
 	for update := range updates {
 		if update.Message == nil { // ignore non-Message updates
 			continue
+		}
+
+		err := h.SaveUser(update)
+		if err != nil {
+			return errors.Wrap(err, "save user local db")
+		}
+
+		err = h.SaveMessageUser(update)
+		if err != nil {
+			return err
 		}
 
 		// Лог сообщения, которое написал пользователь.
@@ -69,7 +78,7 @@ func MessageHandler(cfg *config.Config) error {
 		} else {
 			switch update.Message.Text {
 			case "open":
-				msg.ReplyMarkup = valuteKeyboard
+				msg.ReplyMarkup = h.GetKeyboard()
 			case "close":
 				msg.ReplyMarkup = telegramApi.NewRemoveKeyboard(true)
 
@@ -96,10 +105,50 @@ func MessageHandler(cfg *config.Config) error {
 		// Лог сообщения, которое ответил bot.
 		log.Printf("[%s] %s", "BOT", msg.Text)
 
+		err = h.SaveMessageReply(update, msg)
+		if err != nil {
+			return err
+		}
+
 		// Отправка сообщения
 		if _, err := bot.Send(msg); err != nil {
 			log.Panic(err)
 		}
+	}
+
+	return nil
+}
+
+func (h Handler) SaveUser(update telegramApi.Update) error {
+	item, err := h.UserRepository.FindUserItem(update.Message.From.ID)
+	if err != nil {
+		return errors.Wrap(err, "find user item")
+	}
+	if item.ID == 0 {
+		userID, err := h.UserRepository.InsertUser(update.Message.From)
+		if err != nil {
+			return errors.Wrap(err, "insert user item")
+		} else {
+			log.Printf("Created user with id: %d", userID)
+		}
+	}
+
+	return nil
+}
+
+func (h Handler) SaveMessageUser(update telegramApi.Update) error {
+	err := h.MessageUserRepository.InsertMessage(update.Message.From.ID, update.Message.Text)
+	if err != nil {
+		return errors.Wrap(err, "insert message user")
+	}
+
+	return nil
+}
+
+func (h Handler) SaveMessageReply(update telegramApi.Update, msg telegramApi.MessageConfig) error {
+	err := h.MessageReplyRepository.InsertMessage(update.Message.From.ID, msg.Text)
+	if err != nil {
+		return errors.Wrap(err, "insert message reply")
 	}
 
 	return nil

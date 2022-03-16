@@ -5,20 +5,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/pwcards/go-telegram-bot/internal/models"
 	"gopkg.in/yaml.v2"
 )
 
-// Config struct for webapp config
-type Config struct {
-	Telegram struct {
-		Token string `yaml:"token"`
-	} `yaml:"telegram"`
-}
-
 // NewConfig returns a new decoded Config struct
-func NewConfig(configPath string) (*Config, error) {
+func NewConfig(configPath string) (*models.Config, error) {
 	// Create config structure
-	config := &Config{}
+	config := &models.Config{}
 
 	// Open config file
 	file, err := os.Open(configPath)

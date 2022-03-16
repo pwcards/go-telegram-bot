@@ -5,10 +5,12 @@ import (
 	"github.com/pwcards/go-telegram-bot/internal/models"
 )
 
-var valuteKeyboard = telegramApi.NewReplyKeyboard(
-	telegramApi.NewKeyboardButtonRow(
-		telegramApi.NewKeyboardButton(models.ValuteUSD),
-		telegramApi.NewKeyboardButton(models.ValuteEUR),
-		telegramApi.NewKeyboardButton(models.ValuteGBP),
-	),
-)
+func (h Handler) GetKeyboard() telegramApi.ReplyKeyboardMarkup {
+	return telegramApi.NewReplyKeyboard(
+		telegramApi.NewKeyboardButtonRow(
+			telegramApi.NewKeyboardButton(models.ValuteUSD),
+			telegramApi.NewKeyboardButton(models.ValuteEUR),
+			telegramApi.NewKeyboardButton(models.ValuteGBP),
+		),
+	)
+}
