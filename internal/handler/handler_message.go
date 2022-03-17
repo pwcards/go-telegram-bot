@@ -105,14 +105,16 @@ func (h *Handler) MessageHandler(cfg *models.Config) error {
 		// Лог сообщения, которое ответил bot.
 		log.Printf("[%s] %s", "BOT", msg.Text)
 
-		err = h.SaveMessageReply(update, msg)
-		if err != nil {
-			return err
-		}
+		if msg.Text != "" {
+			err = h.SaveMessageReply(update, msg)
+			if err != nil {
+				return err
+			}
 
-		// Отправка сообщения
-		if _, err := bot.Send(msg); err != nil {
-			log.Panic(err)
+			// Отправка сообщения
+			if _, err := bot.Send(msg); err != nil {
+				log.Panic(err)
+			}
 		}
 	}
 
