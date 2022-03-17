@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	ReplyWelcome = "Привет, %s!\nВас приветствует бот для отслеживания курсов валют.\nВы можете отслеживать, как отдельную валюту сами, или настроить ежедневное оповещение.\n\nСейчас мы отслеживаем курсы %s, %s и %s."
-	ReplyValute  = "Текущий курс %s: <strong>%.2f руб.</strong>"
+	ReplyWelcome      = "Привет, %s!\nВас приветствует бот для отслеживания курсов валют.\nВы можете отслеживать, как отдельную валюту сами, или настроить ежедневное оповещение.\n\nСейчас мы отслеживаем курсы %s, %s и %s."
+	ReplyValute       = "Текущий курс %s: <strong>%.2f руб.</strong>"
+	ReplySelectValute = "Выберите валюту"
 )
 
 func (h *Handler) initBot(token string) (*telegramApi.BotAPI, error) {
@@ -74,14 +75,12 @@ func (h *Handler) MessageHandler(cfg *models.Config) error {
 					models.GetValuteItemNameEmoji(models.ValuteEUR),
 					models.GetValuteItemNameEmoji(models.ValuteGBP),
 				)
+			case "valutes":
+				msg.Text = ReplySelectValute
+				msg.ReplyMarkup = h.GetKeyboard()
 			}
 		} else {
 			switch update.Message.Text {
-			case "open":
-				msg.ReplyMarkup = h.GetKeyboard()
-			case "close":
-				msg.ReplyMarkup = telegramApi.NewRemoveKeyboard(true)
-
 			case models.ValuteUSD, models.ValuteEUR, models.ValuteGBP:
 				objectValute, err := valute.GetObject("Valute", update.Message.Text)
 				if err != nil {
@@ -99,6 +98,8 @@ func (h *Handler) MessageHandler(cfg *models.Config) error {
 					models.GetValuteItemName(update.Message.Text),
 					value,
 				)
+
+				h.keyboardClose(&msg)
 			}
 		}
 
@@ -154,4 +155,9 @@ func (h Handler) SaveMessageReply(update telegramApi.Update, msg telegramApi.Mes
 	}
 
 	return nil
+}
+
+// keyboardClose will hide the keyboard.
+func (h Handler) keyboardClose(msg *telegramApi.MessageConfig) {
+	msg.ReplyMarkup = telegramApi.NewRemoveKeyboard(true)
 }
