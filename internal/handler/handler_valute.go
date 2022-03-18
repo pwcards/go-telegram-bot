@@ -5,14 +5,13 @@ import (
 	"time"
 
 	"github.com/antonholmquist/jason"
+	"github.com/pwcards/go-telegram-bot/internal/models"
 )
-
-const remoteSourceData = "https://www.cbr-xml-daily.ru/daily_json.js"
 
 var myClient = &http.Client{Timeout: 10 * time.Second}
 
-func (h *Handler) GetRemoteDataValute() (*jason.Object, error) {
-	r, err := myClient.Get(remoteSourceData)
+func (h *Handler) GetRemoteDataValute(cfg *models.Config) (*jason.Object, error) {
+	r, err := myClient.Get(cfg.ServerData.Host)
 	if err != nil {
 		return nil, err
 	}

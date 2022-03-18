@@ -26,7 +26,7 @@ func (h *Handler) MessageHandler(cfg *models.Config) error {
 		log.Panic(err)
 	}
 
-	valute, err := h.GetRemoteDataValute()
+	valute, err := h.GetRemoteDataValute(cfg)
 	if err != nil {
 		return errors.Wrap(err, "get valute remote source")
 	}
@@ -92,7 +92,7 @@ func (h *Handler) MessageHandler(cfg *models.Config) error {
 					return errors.Wrap(err, "failed to get currency value")
 				}
 
-				msg.ParseMode = "html"
+				msg.ParseMode = telegramApi.ModeHTML
 				msg.Text = fmt.Sprintf(
 					ReplyValute,
 					models.GetValuteItemName(update.Message.Text),

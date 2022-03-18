@@ -11,3 +11,6 @@ mysql:
   connect_retry_ttl: 1
   connect_retry_max: 1024
   connect_check_ttl: 1
+
+server_data:
+  host: https://cbr-xml-daily.ru/daily_json.js
