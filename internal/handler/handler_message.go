@@ -13,6 +13,7 @@ const (
 	ReplyWelcome      = "Привет, %s!\nВас приветствует бот для отслеживания курсов валют.\nВы можете отслеживать, как отдельную валюту сами, или настроить ежедневное оповещение.\n\nСейчас мы отслеживаем курсы %s, %s и %s."
 	ReplyValute       = "Текущий курс %s: <strong>%.2f руб.</strong>"
 	ReplySelectValute = "Выберите валюту"
+	ReplyUndefined    = "К сожалению, я не знаю, что тебе ответить."
 )
 
 func (h *Handler) initBot(token string) (*telegramApi.BotAPI, error) {
@@ -100,6 +101,8 @@ func (h *Handler) MessageHandler(cfg *models.Config) error {
 				)
 
 				h.keyboardClose(&msg)
+			default:
+				msg.Text = ReplyUndefined
 			}
 		}
 
