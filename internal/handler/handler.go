@@ -1,11 +1,16 @@
 package handler
 
-import "github.com/pwcards/go-telegram-bot/internal/repository"
+import (
+	"github.com/pwcards/go-telegram-bot/internal/models"
+	"github.com/pwcards/go-telegram-bot/internal/repository"
+)
 
 type Handler struct {
+	Cfg                    *models.Config
 	UserRepository         repository.UserRepository
 	MessageUserRepository  repository.MessageUserRepository
 	MessageReplyRepository repository.MessageReplyRepository
+	ValutesRepository      repository.ValutesRepository
 }
 
 type Option func(*Handler)
@@ -16,6 +21,12 @@ func NewHandler(opts ...Option) *Handler {
 		opt(h)
 	}
 	return h
+}
+
+func WithCfg(r *models.Config) Option {
+	return func(h *Handler) {
+		h.Cfg = r
+	}
 }
 
 func WithUserRepository(r repository.UserRepository) Option {
@@ -33,5 +44,11 @@ func WithMessageUserRepository(r repository.MessageUserRepository) Option {
 func WithMessageReplyRepository(r repository.MessageReplyRepository) Option {
 	return func(h *Handler) {
 		h.MessageReplyRepository = r
+	}
+}
+
+func WithValutesRepository(r repository.ValutesRepository) Option {
+	return func(h *Handler) {
+		h.ValutesRepository = r
 	}
 }

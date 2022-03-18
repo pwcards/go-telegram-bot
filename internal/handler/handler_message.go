@@ -20,16 +20,11 @@ func (h *Handler) initBot(token string) (*telegramApi.BotAPI, error) {
 	return telegramApi.NewBotAPI(token)
 }
 
-func (h *Handler) MessageHandler(cfg *models.Config) error {
+func (h *Handler) MessageHandler() error {
 	// Создание бота
-	bot, err := h.initBot(cfg.Telegram.Token)
+	bot, err := h.initBot(h.Cfg.Telegram.Token)
 	if err != nil {
 		log.Panic(err)
-	}
-
-	valute, err := h.GetRemoteDataValute(cfg)
-	if err != nil {
-		return errors.Wrap(err, "get valute remote source")
 	}
 
 	// Логирование пользователя, который зашел в bot.
@@ -81,23 +76,31 @@ func (h *Handler) MessageHandler(cfg *models.Config) error {
 				msg.ReplyMarkup = h.GetKeyboard()
 			}
 		} else {
+			msg.ParseMode = telegramApi.ModeHTML
+
+			valute, err := h.GetCurrentValute()
+			if err != nil {
+				return errors.Wrap(err, "get valute remote source")
+			}
+
 			switch update.Message.Text {
-			case models.ValuteUSD, models.ValuteEUR, models.ValuteGBP:
-				objectValute, err := valute.GetObject("Valute", update.Message.Text)
-				if err != nil {
-					return errors.Wrap(err, "failed to get currency structure")
-				}
-
-				value, err := objectValute.GetFloat64("Value")
-				if err != nil {
-					return errors.Wrap(err, "failed to get currency value")
-				}
-
-				msg.ParseMode = telegramApi.ModeHTML
+			case models.ValuteUSD:
 				msg.Text = fmt.Sprintf(
 					ReplyValute,
 					models.GetValuteItemName(update.Message.Text),
-					value,
+					valute.Usd,
+				)
+			case models.ValuteEUR:
+				msg.Text = fmt.Sprintf(
+					ReplyValute,
+					models.GetValuteItemName(update.Message.Text),
+					valute.Eur,
+				)
+			case models.ValuteGBP:
+				msg.Text = fmt.Sprintf(
+					ReplyValute,
+					models.GetValuteItemName(update.Message.Text),
+					valute.Gbp,
 				)
 
 				h.keyboardClose(&msg)

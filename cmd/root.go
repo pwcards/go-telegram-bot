@@ -20,15 +20,19 @@ func Execute() {
 		log.Fatal(err)
 	}
 
+	// Connect to DB
 	connect := GetConnect(cfg)
 
+	// Init handlers
 	h := handler.NewHandler(
+		handler.WithCfg(cfg),
 		handler.WithUserRepository(repository.NewUser(connect)),
 		handler.WithMessageUserRepository(repository.NewMessageUser(connect)),
 		handler.WithMessageReplyRepository(repository.NewMessageReply(connect)),
+		handler.WithValutesRepository(repository.NewValutes(connect)),
 	)
 
-	err = h.MessageHandler(cfg)
+	err = h.MessageHandler()
 	if err != nil {
 		log.Fatal(err)
 	}
