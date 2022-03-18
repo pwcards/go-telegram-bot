@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/pwcards/go-telegram-bot/internal/config"
+	"github.com/pwcards/go-telegram-bot/internal/cron"
 	"github.com/pwcards/go-telegram-bot/internal/handler"
 	"github.com/pwcards/go-telegram-bot/internal/repository"
 )
@@ -31,6 +32,12 @@ func Execute() {
 		handler.WithMessageReplyRepository(repository.NewMessageReply(connect)),
 		handler.WithValutesRepository(repository.NewValutes(connect)),
 	)
+
+	// Cron
+	cronWorker := cron.NewCronWorker(
+		cron.WithValutesRepository(h),
+	)
+	cronWorker.Run()
 
 	err = h.MessageHandler()
 	if err != nil {

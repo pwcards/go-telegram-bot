@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -11,7 +10,7 @@ import (
 )
 
 type ValutesRepository interface {
-	Create(valutes *models.ValutesModelDB) (int64, error)
+	Create(now string, valutes *models.ValutesModelDB) (int64, error)
 	FindValuteItem(now string) (*models.ValutesModelDB, error)
 }
 
@@ -23,11 +22,11 @@ func NewValutes(db *sqlx.DB) ValutesRepository {
 	return &valutes{db: db}
 }
 
-func (h valutes) Create(valutes *models.ValutesModelDB) (int64, error) {
+func (h valutes) Create(now string, valutes *models.ValutesModelDB) (int64, error) {
 	res, err := h.db.Exec(`
 		INSERT INTO valutes (date_val, usd, eur, gbp) 
 		VALUES(?, ?, ?, ?)`,
-		time.Now(), valutes.Usd, valutes.Eur, valutes.Gbp,
+		now, valutes.Usd, valutes.Eur, valutes.Gbp,
 	)
 
 	if err != nil {

@@ -45,7 +45,7 @@ func (h Handler) GetCurrentValute() (*models.ValutesModelDB, error) {
 		}
 
 		// Запись значения валют за текущий день
-		userID, err := h.ValutesRepository.Create(dataModel)
+		userID, err := h.ValutesRepository.Create(nowDate, dataModel)
 		if err != nil {
 			return &model, errors.Wrap(err, "insert user item")
 		} else {
