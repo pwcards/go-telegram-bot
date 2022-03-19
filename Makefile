@@ -3,6 +3,16 @@ RELEASE_TAG = $(shell date -u +"%y%m%d_%H%M%S")
 rebuild_app:
 	docker-compose up -d --no-deps --build app
 
+rebuild_database:
+	docker-compose up -d --no-deps --build database
+
+restart:
+	docker-compose -f docker-compose.yml stop $(c)
+	docker-compose -f docker-compose.yml up -d $(c)
+
+ps:
+	docker-compose -f docker-compose.yml ps
+
 req-linter:
 	@curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin v1.31.0
 

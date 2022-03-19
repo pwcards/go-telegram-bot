@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3.3"
 services:
   app:
     container_name: dockerdev
@@ -12,7 +12,7 @@ services:
     depends_on:
       - mariadb
 
-  mariadb:
+  database:
     image: mariadb:10.3
     container_name: MariaDB
     restart: always

@@ -3,7 +3,7 @@ telegram:
   token: "5268346289:AAEjBhmqA1wyAjPMXd7S7mP2r_6t9pKp9TM"
 
 mysql:
-  host: localhost
+  host: database
   port: 3306
   username: root
   password: qwerty
