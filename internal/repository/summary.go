@@ -10,9 +10,10 @@ import (
 )
 
 type SummaryRepository interface {
-	Create(userID int, value string) (int64, error)
-	FindItem(userID int) (*models.SummaryModel, error)
-	UpdateItem(userID int, value string) error
+	Create(userID int, chatID int64, value string) (int64, error)
+	FindItem(userID int, chatID int64) (*models.SummaryModel, error)
+	UpdateItem(userID int, chatID int64, value string) error
+	GetUsersByKey(key string) ([]models.SummaryModel, error)
 }
 
 type summary struct {
@@ -23,11 +24,11 @@ func NewSummary(db *sqlx.DB) SummaryRepository {
 	return &summary{db: db}
 }
 
-func (h summary) Create(userID int, value string) (int64, error) {
+func (h summary) Create(userID int, chatID int64, value string) (int64, error) {
 	res, err := h.db.Exec(`
-		INSERT INTO summary (user_id, time_action) 
-		VALUES(?, ?)`,
-		userID, value,
+		INSERT INTO summary (user_id, chat_id, time_action) 
+		VALUES(?, ?, ?)`,
+		userID, chatID, value,
 	)
 
 	if err != nil {
@@ -42,34 +43,61 @@ func (h summary) Create(userID int, value string) (int64, error) {
 	return id, nil
 }
 
-func (h summary) FindItem(userID int) (*models.SummaryModel, error) {
-	itemUser := &models.SummaryModel{}
-	err := h.db.Get(itemUser, `
+func (h summary) FindItem(userID int, chatID int64) (*models.SummaryModel, error) {
+	item := &models.SummaryModel{}
+	err := h.db.Get(item, `
 		SELECT id 
 		FROM summary 
-		WHERE user_id = ?`, userID)
+		WHERE user_id = ?
+		  AND chat_id = ?`, userID, chatID)
 
 	if err == sql.ErrNoRows {
-		return itemUser, nil
+		return item, nil
 	}
 
 	if err != nil {
-		return itemUser, errors.Wrap(err, "select summary item")
+		return item, errors.Wrap(err, "select summary item")
 	}
 
-	return itemUser, nil
+	return item, nil
 }
 
-func (h summary) UpdateItem(userID int, value string) error {
+func (h summary) UpdateItem(userID int, chatID int64, value string) error {
 	_, err := h.db.Exec(`
 		UPDATE summary 
 		SET time_action = ?
-		WHERE user_id = ?`,
-		value, userID,
+		WHERE user_id = ?
+		  AND chat_id = ?`, value, userID, chatID,
 	)
 	if err != nil {
 		return errors.Wrap(err, "repository: update summary")
 	}
 
 	return nil
+}
+
+func (h summary) GetUsersByKey(key string) ([]models.SummaryModel, error) {
+	rows, err := h.db.Queryx(`
+		SELECT user_id, chat_id 
+		FROM summary 
+		WHERE time_action = ?`, key)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "QueryContext")
+	}
+
+	users := make([]models.SummaryModel, 0)
+	for rows.Next() {
+		var item models.SummaryModel
+		if err := rows.StructScan(&item); err != nil {
+			return nil, errors.Wrap(err, "rows.Scan")
+		}
+
+		users = append(users, item)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, errors.Wrap(err, "rows.Close")
+	}
+
+	return users, nil
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-co-op/gocron"
 	"github.com/pwcards/go-telegram-bot/internal/handler"
+	"github.com/pwcards/go-telegram-bot/internal/models"
 )
 
 type cronWorker struct {
@@ -26,6 +27,31 @@ func (w *cronWorker) Run() {
 			}
 			log.Print("[CRON] execute: GetRemoteData")
 		})
+
+	// Ежедневная сводка (08:00)
+	_, err = s.Every(1).Day().At(models.GetTimeMapValue(models.TimeKeySend08)).Do(
+		func() {
+			w.handler.SendSummaryList(models.TimeKeySend08)
+			log.Print("[CRON] execute: SendSummary_08:00")
+		})
+
+	// Ежедневная сводка (09:00)
+	_, err = s.Every(1).Day().At(models.GetTimeMapValue(models.TimeKeySend09)).Do(
+		func() {
+			w.handler.SendSummaryList(models.TimeKeySend09)
+			log.Print("[CRON] execute: SendSummary_09:00")
+		})
+
+	// Ежедневная сводка (10:00)
+	_, err = s.Every(1).Day().At(models.GetTimeMapValue(models.TimeKeySend10)).Do(
+		func() {
+			w.handler.SendSummaryList(models.TimeKeySend10)
+			log.Print("[CRON] execute: SendSummary_10:00")
+		})
+
+	if err != nil {
+		return
+	}
 
 	if err != nil {
 		return

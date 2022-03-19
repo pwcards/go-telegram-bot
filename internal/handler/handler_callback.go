@@ -20,18 +20,18 @@ func (h Handler) CallBackSwitch(bot *telegramApi.BotAPI, callback *telegramApi.C
 }
 
 func (h Handler) CallBackTime(bot *telegramApi.BotAPI, callback *telegramApi.CallbackQuery) error {
-	findItem, err := h.SummaryRepository.FindItem(callback.From.ID)
+	findItem, err := h.SummaryRepository.FindItem(callback.From.ID, callback.Message.Chat.ID)
 	if err != nil {
 		return err
 	}
 
 	if findItem.ID != 0 {
-		err := h.SummaryRepository.UpdateItem(callback.From.ID, callback.Data)
+		err := h.SummaryRepository.UpdateItem(callback.From.ID, callback.Message.Chat.ID, callback.Data)
 		if err != nil {
 			return err
 		}
 	} else {
-		_, err := h.SummaryRepository.Create(callback.From.ID, callback.Data)
+		_, err := h.SummaryRepository.Create(callback.From.ID, callback.Message.Chat.ID, callback.Data)
 		if err != nil {
 			return err
 		}
