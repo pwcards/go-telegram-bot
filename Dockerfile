@@ -1,6 +1,9 @@
 # Start from golang:1.17-alpine base image
 FROM golang:1.17-alpine
 
+ENV TZ=Europe/Moscow
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # The latest alpine images don't have some tools like (`git` and `bash`).
 # Adding git, bash and openssh to the image
 RUN apk update && apk upgrade && \
