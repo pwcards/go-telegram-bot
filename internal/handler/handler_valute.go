@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"time"
 
@@ -33,29 +32,48 @@ func (h Handler) GetCurrentValute() (*models.ValutesModelDB, error) {
 
 	if item.ID == 0 {
 		// Получение удаленных данных
-		valute, err := h.GetRemoteDataValute()
+		dataModel, err := h.GetData()
 		if err != nil {
-			return &model, errors.Wrap(err, "get valute remote source")
-		}
-
-		dataModel := &models.ValutesModelDB{
-			Usd: valute.Valute.Eur.Value,
-			Eur: valute.Valute.Usd.Value,
-			Gbp: valute.Valute.Gbp.Value,
+			return nil, err
 		}
 
 		// Запись значения валют за текущий день
-		userID, err := h.ValutesRepository.Create(nowDate, dataModel)
+		_, err = h.ValutesRepository.Create(nowDate, dataModel)
 		if err != nil {
 			return &model, errors.Wrap(err, "insert user item")
-		} else {
-			log.Printf("Created user with id: %d", userID)
 		}
 
 		return dataModel, nil
+	} else {
+		// Получение удаленных данных
+		dataModel, err := h.GetData()
+		if err != nil {
+			return nil, err
+		}
+
+		err = h.ValutesRepository.UpdateItem(nowDate, dataModel)
+
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return item, nil
+}
+
+func (h Handler) GetData() (*models.ValutesModelDB, error) {
+	model := models.ValutesModelDB{}
+
+	valute, err := h.GetRemoteDataValute()
+	if err != nil {
+		return &model, errors.Wrap(err, "get valute remote source")
+	}
+
+	return &models.ValutesModelDB{
+		Usd: valute.Valute.Eur.Value,
+		Eur: valute.Valute.Usd.Value,
+		Gbp: valute.Valute.Gbp.Value,
+	}, nil
 }
 
 func (h Handler) getJson(url string, target interface{}) error {

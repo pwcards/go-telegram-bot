@@ -12,6 +12,7 @@ import (
 type ValutesRepository interface {
 	Create(now string, valutes *models.ValutesModelDB) (int64, error)
 	FindValuteItem(now string) (*models.ValutesModelDB, error)
+	UpdateItem(now string, valutes *models.ValutesModelDB) error
 }
 
 type valutes struct {
@@ -57,4 +58,20 @@ func (h valutes) FindValuteItem(now string) (*models.ValutesModelDB, error) {
 	}
 
 	return item, nil
+}
+
+func (h valutes) UpdateItem(now string, valutes *models.ValutesModelDB) error {
+	_, err := h.db.Exec(`
+		UPDATE valutes 
+		SET usd = ?,
+		    eur = ?,
+		    gbp = ?
+		WHERE date_val = ?`,
+		valutes.Usd, valutes.Eur, valutes.Gbp, now,
+	)
+	if err != nil {
+		return errors.Wrap(err, "repository: update valute")
+	}
+
+	return nil
 }

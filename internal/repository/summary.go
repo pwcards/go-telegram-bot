@@ -68,7 +68,7 @@ func (h summary) UpdateItem(userID int, value string) error {
 		value, userID,
 	)
 	if err != nil {
-		return errors.Wrap(err, "repository: save summary")
+		return errors.Wrap(err, "repository: update summary")
 	}
 
 	return nil
