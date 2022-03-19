@@ -7,11 +7,11 @@ rebuild_database:
 	docker-compose up -d --no-deps --build database
 
 restart:
-	docker-compose -f docker-compose.yml stop $(c)
-	docker-compose -f docker-compose.yml up -d $(c)
+	docker-compose stop $(c)
+	docker-compose -up -d $(c)
 
 ps:
-	docker-compose -f docker-compose.yml ps
+	docker-compose -f ps
 
 req-linter:
 	@curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin v1.31.0
