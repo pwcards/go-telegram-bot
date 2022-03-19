@@ -31,6 +31,7 @@ func Execute() {
 		handler.WithMessageUserRepository(repository.NewMessageUser(connect)),
 		handler.WithMessageReplyRepository(repository.NewMessageReply(connect)),
 		handler.WithValutesRepository(repository.NewValutes(connect)),
+		handler.WithSummaryRepository(repository.NewSummary(connect)),
 	)
 
 	// Cron

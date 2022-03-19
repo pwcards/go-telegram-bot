@@ -11,6 +11,7 @@ type Handler struct {
 	MessageUserRepository  repository.MessageUserRepository
 	MessageReplyRepository repository.MessageReplyRepository
 	ValutesRepository      repository.ValutesRepository
+	SummaryRepository      repository.SummaryRepository
 }
 
 type Option func(*Handler)
@@ -50,5 +51,11 @@ func WithMessageReplyRepository(r repository.MessageReplyRepository) Option {
 func WithValutesRepository(r repository.ValutesRepository) Option {
 	return func(h *Handler) {
 		h.ValutesRepository = r
+	}
+}
+
+func WithSummaryRepository(r repository.SummaryRepository) Option {
+	return func(h *Handler) {
+		h.SummaryRepository = r
 	}
 }

@@ -9,13 +9,6 @@ import (
 	"github.com/pwcards/go-telegram-bot/internal/models"
 )
 
-const (
-	ReplyWelcome      = "Привет, %s!\nВас приветствует бот для отслеживания курсов валют.\nВы можете отслеживать, как отдельную валюту сами, или настроить ежедневное оповещение.\n\nСейчас мы отслеживаем курсы %s, %s и %s."
-	ReplyValute       = "Текущий курс %s: <strong>%.2f руб.</strong>"
-	ReplySelectValute = "Выберите валюту"
-	ReplyUndefined    = "К сожалению, я не знаю, что тебе ответить."
-)
-
 func (h *Handler) initBot(token string) (*telegramApi.BotAPI, error) {
 	return telegramApi.NewBotAPI(token)
 }
@@ -40,6 +33,14 @@ func (h *Handler) MessageHandler() error {
 	// В канал updates приходят структуры типа Update
 	// вычитываем их и обрабатываем
 	for update := range updates {
+		if update.CallbackQuery != nil {
+			err := h.CallBackSwitch(bot, update.CallbackQuery)
+			if err != nil {
+				return errors.Wrap(err, "save callback start_time")
+			}
+			continue
+		}
+
 		if update.Message == nil { // ignore non-Message updates
 			continue
 		}
@@ -63,17 +64,21 @@ func (h *Handler) MessageHandler() error {
 			// Обработка команд.
 			// Команда - сообщение, начинающееся с "/"
 			switch update.Message.Command() {
-			case "start":
+			case models.CommandStart:
 				msg.Text = fmt.Sprintf(
-					ReplyWelcome,
+					models.ReplyWelcome,
 					update.Message.From.FirstName,
 					models.GetValuteItemNameEmoji(models.ValuteUSD),
 					models.GetValuteItemNameEmoji(models.ValuteEUR),
 					models.GetValuteItemNameEmoji(models.ValuteGBP),
 				)
-			case "valutes":
-				msg.Text = ReplySelectValute
-				msg.ReplyMarkup = h.GetKeyboard()
+			case models.CommandValutes:
+				msg.Text = models.ReplySelectValute
+				msg.ReplyMarkup = h.GetKeyboardValute()
+
+			case models.CommandSummary:
+				msg.Text = models.ReplySummaryRequest
+				msg.ReplyMarkup = h.GetKeyboardTime()
 			}
 		} else {
 			msg.ParseMode = telegramApi.ModeHTML
@@ -86,27 +91,27 @@ func (h *Handler) MessageHandler() error {
 			switch update.Message.Text {
 			case models.ValuteUSD:
 				msg.Text = fmt.Sprintf(
-					ReplyValute,
+					models.ReplyValute,
 					models.GetValuteItemName(update.Message.Text),
 					valute.Usd,
 				)
 			case models.ValuteEUR:
 				msg.Text = fmt.Sprintf(
-					ReplyValute,
+					models.ReplyValute,
 					models.GetValuteItemName(update.Message.Text),
 					valute.Eur,
 				)
 			case models.ValuteGBP:
 				msg.Text = fmt.Sprintf(
-					ReplyValute,
+					models.ReplyValute,
 					models.GetValuteItemName(update.Message.Text),
 					valute.Gbp,
 				)
-
-				h.keyboardClose(&msg)
 			default:
-				msg.Text = ReplyUndefined
+				msg.Text = models.ReplyUndefined
 			}
+
+			h.keyboardClose(&msg)
 		}
 
 		// Лог сообщения, которое ответил bot.

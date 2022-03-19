@@ -17,6 +17,7 @@ func (w *cronWorker) Run() {
 
 	log.Print("[CRON] start")
 
+	// Получение данных из удаленного источника
 	_, err := s.Every(1).Hour().Do(
 		func() {
 			_, err := w.handler.GetCurrentValute()
