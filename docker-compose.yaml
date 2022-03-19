@@ -10,7 +10,7 @@ services:
     environment:
       DD_DB_HOST: mariadb
     depends_on:
-      - mariadb
+      - database
 
   database:
     image: mariadb:10.3
