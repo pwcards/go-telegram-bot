@@ -3,10 +3,12 @@ package handler
 import (
 	"github.com/pwcards/go-telegram-bot/internal/models"
 	"github.com/pwcards/go-telegram-bot/internal/repository"
+	"github.com/rs/zerolog"
 )
 
 type Handler struct {
 	Cfg                    *models.Config
+	Log                    zerolog.Logger
 	UserRepository         repository.UserRepository
 	MessageUserRepository  repository.MessageUserRepository
 	MessageReplyRepository repository.MessageReplyRepository
@@ -57,5 +59,11 @@ func WithValutesRepository(r repository.ValutesRepository) Option {
 func WithSummaryRepository(r repository.SummaryRepository) Option {
 	return func(h *Handler) {
 		h.SummaryRepository = r
+	}
+}
+
+func WithLogger(log zerolog.Logger) Option {
+	return func(h *Handler) {
+		h.Log = log
 	}
 }

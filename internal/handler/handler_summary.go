@@ -41,6 +41,11 @@ func (h Handler) SendSummaryList(key string) {
 				valute.Gbp,
 			)
 
+			h.Log.Info().
+				Str("channel", "summary").
+				Int64("user_id", element.ChatID).
+				Msg("Send summary message")
+
 			if _, err := bot.Send(msg); err != nil {
 				panic(err)
 			}

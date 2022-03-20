@@ -21,7 +21,7 @@ func (h *Handler) MessageHandler() error {
 	}
 
 	// Логирование пользователя, который зашел в bot.
-	log.Printf("Authorized on account %s", bot.Self.UserName)
+	h.Log.Info().Msgf("Authorized on account %s", bot.Self.UserName)
 
 	// Структура с конфигом для получения updates
 	u := telegramApi.NewUpdate(0)
@@ -56,7 +56,7 @@ func (h *Handler) MessageHandler() error {
 		}
 
 		// Лог сообщения, которое написал пользователь.
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+		h.Log.Log().Msgf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
 		msg := telegramApi.NewMessage(update.Message.Chat.ID, update.Message.Text)
 
@@ -115,7 +115,7 @@ func (h *Handler) MessageHandler() error {
 		}
 
 		// Лог сообщения, которое ответил bot.
-		log.Printf("[%s] %s", "BOT", msg.Text)
+		h.Log.Log().Msgf("[%s] %s", "BOT", msg.Text)
 
 		if msg.Text != "" {
 			err = h.SaveMessageReply(update, msg)
@@ -125,7 +125,7 @@ func (h *Handler) MessageHandler() error {
 
 			// Отправка сообщения
 			if _, err := bot.Send(msg); err != nil {
-				log.Panic(err)
+				h.Log.Panic().Err(err)
 			}
 		}
 	}
@@ -143,7 +143,7 @@ func (h Handler) SaveUser(update telegramApi.Update) error {
 		if err != nil {
 			return errors.Wrap(err, "insert user item")
 		} else {
-			log.Printf("Created user with id: %d", userID)
+			h.Log.Info().Msgf("Created user with id: %d", userID)
 		}
 	}
 
