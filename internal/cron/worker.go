@@ -16,10 +16,17 @@ type cronWorker struct {
 func (w *cronWorker) Run() {
 	s := gocron.NewScheduler(time.UTC)
 
+	// Set location for cron
+	location, err := time.LoadLocation("Europe/Moscow")
+	if err != nil {
+		panic(err)
+	}
+	s.ChangeLocation(location)
+
 	log.Print("[CRON] start")
 
 	// Получение данных из удаленного источника
-	_, err := s.Every(1).Hour().Do(
+	_, err = s.Every(1).Hour().Do(
 		func() {
 			_, err := w.handler.GetCurrentValute()
 			if err != nil {
@@ -48,10 +55,6 @@ func (w *cronWorker) Run() {
 			w.handler.SendSummaryList(models.TimeKeySend10)
 			log.Print("[CRON] execute: SendSummary_10:00")
 		})
-
-	if err != nil {
-		return
-	}
 
 	if err != nil {
 		return
