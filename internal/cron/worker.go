@@ -26,8 +26,8 @@ func (w *cronWorker) Run() {
 		Str("channel", "cron").
 		Msg("[CRON] start")
 
-	// Получение данных из удаленного источника
-	_, err = s.Every(1).Hour().Do(
+	// Получение данных из удаленного источника (каждые 15 минут)
+	_, err = s.Every(15).Minute().Do(
 		func() {
 			_, err := w.handler.GetCurrentValute()
 			if err != nil {
