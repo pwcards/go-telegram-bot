@@ -6,7 +6,7 @@ mysql:
   host: 80.78.248.93
   port: 3306
   username: root
-  password: qwerty
+  password: NOBErd98%Ujcjjda1
   dbname: valute_bot
   connect_retry_ttl: 1
   connect_retry_max: 1024

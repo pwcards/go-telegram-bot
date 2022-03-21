@@ -8,10 +8,10 @@ rebuild_database:
 
 restart:
 	docker-compose stop $(c)
-	docker-compose -up -d $(c)
+	docker-compose up -d $(c)
 
 ps:
-	docker-compose -f ps
+	docker-compose ps
 
 req-linter:
 	@curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin v1.31.0
