@@ -5,9 +5,9 @@ telegram:
 mysql:
   host: 80.78.248.93
   port: 3306
-  username: root
-  password: NOBErd98%Ujcjjda1
-  dbname: valute_bot
+  username: user_bot_valute
+  password: Ak^VQ*3oPq1cvBL1
+  dbname: telegram_bot_valute
   connect_retry_ttl: 1
   connect_retry_max: 1024
   connect_check_ttl: 1

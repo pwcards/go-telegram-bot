@@ -8,17 +8,33 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DD_DB_HOST: mariadb
+      DD_DB_HOST: database
     depends_on:
       - database
 
   database:
     image: mariadb:10.3
-    container_name: MariaDB
+    container_name: database
     restart: always
     ports:
-      - ${PORT_MARIADB}:3306
+      - ${PORT_DATABASE}:3306
     volumes:
       - ./mariadb:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    links:
+      - database
+    environment:
+      PMA_HOST: database
+      PMA_PORT: ${PORT_DATABASE}
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - ${PORT_PHPMYADMIN}:80
