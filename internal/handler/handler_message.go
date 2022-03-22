@@ -2,39 +2,30 @@ package handler
 
 import (
 	"fmt"
-	"log" //nolint:goimports
 
 	telegramApi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/pkg/errors"
 	"github.com/pwcards/go-telegram-bot/internal/models"
 )
 
-func (h *Handler) initBot(token string) (*telegramApi.BotAPI, error) {
-	return telegramApi.NewBotAPI(token)
-}
-
 func (h *Handler) MessageHandler() error {
-	// Создание бота
-	bot, err := h.initBot(h.Cfg.Telegram.Token)
-	if err != nil {
-		log.Panic(err)
-	}
-
 	// Логирование пользователя, который зашел в bot.
-	h.Log.Info().Msgf("Authorized on account %s", bot.Self.UserName)
+	h.Log.Info().
+		Str("channel", "application").
+		Msgf("Authorized on account %s", h.Bot.Self.UserName)
 
 	// Структура с конфигом для получения updates
 	u := telegramApi.NewUpdate(0)
 	u.Timeout = 60
 
 	// используя конфиг u создаем канал в который будут прилетать новые сообщения
-	updates, _ := bot.GetUpdatesChan(u)
+	updates, _ := h.Bot.GetUpdatesChan(u)
 
 	// В канал updates приходят структуры типа Update
 	// вычитываем их и обрабатываем
 	for update := range updates {
 		if update.CallbackQuery != nil {
-			err := h.CallBackSwitch(bot, update.CallbackQuery)
+			err := h.CallBackSwitch(h.Bot, update.CallbackQuery)
 			if err != nil {
 				return errors.Wrap(err, "save callback start_time")
 			}
@@ -56,7 +47,9 @@ func (h *Handler) MessageHandler() error {
 		}
 
 		// Лог сообщения, которое написал пользователь.
-		h.Log.Log().Msgf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+		h.Log.Log().
+			Str("channel", "application").
+			Msgf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
 		msg := telegramApi.NewMessage(update.Message.Chat.ID, update.Message.Text)
 
@@ -115,7 +108,9 @@ func (h *Handler) MessageHandler() error {
 		}
 
 		// Лог сообщения, которое ответил bot.
-		h.Log.Log().Msgf("[%s] %s", "BOT", msg.Text)
+		h.Log.Log().
+			Str("channel", "application").
+			Msgf("[%s] %s", "BOT", msg.Text)
 
 		if msg.Text != "" {
 			err = h.SaveMessageReply(update, msg)
@@ -124,7 +119,7 @@ func (h *Handler) MessageHandler() error {
 			}
 
 			// Отправка сообщения
-			if _, err := bot.Send(msg); err != nil {
+			if _, err := h.Bot.Send(msg); err != nil {
 				h.Log.Panic().Err(err)
 			}
 		}
@@ -143,7 +138,9 @@ func (h Handler) SaveUser(update telegramApi.Update) error {
 		if err != nil {
 			return errors.Wrap(err, "insert user item")
 		} else {
-			h.Log.Info().Msgf("Created user with id: %d", userID)
+			h.Log.Info().
+				Str("channel", "application").
+				Msgf("Created user with id: %d", userID)
 		}
 	}
 

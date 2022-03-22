@@ -14,6 +14,7 @@ type SummaryRepository interface {
 	FindItem(userID int, chatID int64) (*models.SummaryModel, error)
 	UpdateItem(userID int, chatID int64, value string) error
 	GetUsersByKey(key string) ([]models.SummaryModel, error)
+	GetListSummary() ([]models.SummaryModel, error)
 }
 
 type summary struct {
@@ -60,6 +61,32 @@ func (h summary) FindItem(userID int, chatID int64) (*models.SummaryModel, error
 	}
 
 	return item, nil
+}
+
+func (h summary) GetListSummary() ([]models.SummaryModel, error) {
+	rows, err := h.db.Queryx(`
+		SELECT user_id, 
+		       chat_id 
+		FROM summary`)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "QueryContext")
+	}
+
+	users := make([]models.SummaryModel, 0)
+	for rows.Next() {
+		var item models.SummaryModel
+		if err := rows.StructScan(&item); err != nil {
+			return nil, errors.Wrap(err, "rows.Scan")
+		}
+
+		users = append(users, item)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, errors.Wrap(err, "rows.Close")
+	}
+
+	return users, nil
 }
 
 func (h summary) UpdateItem(userID int, chatID int64, value string) error {

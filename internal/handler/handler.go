@@ -1,6 +1,7 @@
 package handler
 
 import (
+	telegramApi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/pwcards/go-telegram-bot/internal/models"
 	"github.com/pwcards/go-telegram-bot/internal/repository"
 	"github.com/rs/zerolog"
@@ -8,6 +9,7 @@ import (
 
 type Handler struct {
 	Cfg                    *models.Config
+	Bot                    *telegramApi.BotAPI
 	Log                    zerolog.Logger
 	UserRepository         repository.UserRepository
 	MessageUserRepository  repository.MessageUserRepository
@@ -29,6 +31,12 @@ func NewHandler(opts ...Option) *Handler {
 func WithCfg(r *models.Config) Option {
 	return func(h *Handler) {
 		h.Cfg = r
+	}
+}
+
+func WithBot(r *telegramApi.BotAPI) Option {
+	return func(h *Handler) {
+		h.Bot = r
 	}
 }
 

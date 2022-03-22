@@ -2,7 +2,6 @@ package handler
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	telegramApi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -16,12 +15,6 @@ func (h Handler) SendSummaryList(key string) {
 	}
 
 	if len(usersByKey) > 0 {
-		// Создание бота
-		bot, err := h.initBot(h.Cfg.Telegram.Token)
-		if err != nil {
-			log.Panic(err)
-		}
-
 		// Получение курсов
 		valute, err := h.GetCurrentValute()
 		if err != nil {
@@ -43,10 +36,11 @@ func (h Handler) SendSummaryList(key string) {
 
 			h.Log.Info().
 				Str("channel", "summary").
+				Str("event", "scheduled").
 				Int64("user_id", element.ChatID).
 				Msg("Send summary message")
 
-			if _, err := bot.Send(msg); err != nil {
+			if _, err := h.Bot.Send(msg); err != nil {
 				panic(err)
 			}
 		}

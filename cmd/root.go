@@ -3,9 +3,11 @@ package cmd
 import (
 	"os"
 
+	telegramApi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/pwcards/go-telegram-bot/internal/config"
 	"github.com/pwcards/go-telegram-bot/internal/cron"
 	"github.com/pwcards/go-telegram-bot/internal/handler"
+	"github.com/pwcards/go-telegram-bot/internal/models"
 	"github.com/pwcards/go-telegram-bot/internal/repository"
 	"github.com/rs/zerolog"
 )
@@ -25,12 +27,19 @@ func Execute() {
 		logger.Panic().Err(err)
 	}
 
+	// Init bot
+	bot, err := startBot(cfg)
+	if err != nil {
+		logger.Panic().Err(err)
+	}
+
 	// Connect to DB
 	connect := GetConnect(cfg)
 
 	// Init handlers
 	h := handler.NewHandler(
 		handler.WithCfg(cfg),
+		handler.WithBot(bot),
 		handler.WithLogger(logger),
 		handler.WithUserRepository(repository.NewUser(connect)),
 		handler.WithMessageUserRepository(repository.NewMessageUser(connect)),
@@ -49,4 +58,14 @@ func Execute() {
 	if err != nil {
 		logger.Panic().Err(err)
 	}
+}
+
+func startBot(Cfg *models.Config) (*telegramApi.BotAPI, error) {
+	// Создание бота
+	bot, err := telegramApi.NewBotAPI(Cfg.Telegram.Token)
+	if err != nil {
+		return &telegramApi.BotAPI{}, err
+	}
+
+	return bot, nil
 }

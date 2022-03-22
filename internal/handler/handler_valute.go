@@ -2,9 +2,12 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
+	"math"
 	"net/http"
 	"time"
 
+	telegramApi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/pkg/errors"
 	"github.com/pwcards/go-telegram-bot/internal/models"
 )
@@ -51,6 +54,9 @@ func (h Handler) GetCurrentValute() (*models.ValutesModelDB, error) {
 			return nil, err
 		}
 
+		// Отправка персональных оповещений пользователям (изменение конкретной валюты)
+		h.CheckValueChanges(item, dataModel)
+
 		err = h.ValutesRepository.UpdateItem(nowDate, dataModel)
 
 		if err != nil {
@@ -74,6 +80,81 @@ func (h Handler) GetData() (*models.ValutesModelDB, error) {
 		Eur: valute.Valute.Usd.Value,
 		Gbp: valute.Valute.Gbp.Value,
 	}, nil
+}
+
+func (h Handler) CheckValueChanges(localModel, remoteModel *models.ValutesModelDB) {
+	differentCount := math.Abs(localModel.Usd - remoteModel.Usd)
+	listSummary, err := h.SummaryRepository.GetListSummary()
+	if err != nil {
+		return
+	}
+
+	if localModel.Usd != remoteModel.Usd {
+		h.SendMessageCourseChangeRealtime(
+			listSummary,
+			models.ValuteUSD,
+			h.getDifferentString(localModel.Usd, remoteModel.Usd),
+			differentCount,
+			localModel.Usd,
+			remoteModel.Usd,
+		)
+	}
+
+	if localModel.Eur != remoteModel.Eur {
+		h.SendMessageCourseChangeRealtime(
+			listSummary,
+			models.ValuteEUR,
+			h.getDifferentString(localModel.Eur, remoteModel.Eur),
+			differentCount,
+			localModel.Eur,
+			remoteModel.Eur,
+		)
+	}
+
+	if localModel.Gbp != remoteModel.Gbp {
+		h.SendMessageCourseChangeRealtime(
+			listSummary,
+			models.ValuteGBP,
+			h.getDifferentString(localModel.Gbp, remoteModel.Gbp),
+			differentCount,
+			localModel.Gbp,
+			remoteModel.Gbp,
+		)
+	}
+}
+
+func (h Handler) SendMessageCourseChangeRealtime(listSummary []models.SummaryModel, valuteItem string,
+	differentString string, differentCount float64, lastValue float64, nowValue float64) {
+	for _, element := range listSummary {
+		msg := telegramApi.NewMessage(element.ChatID, "")
+		msg.Text = fmt.Sprintf(
+			models.ReplyChangeCourseData,
+			models.GetValuteItemNameEmoji(valuteItem),
+			differentString,
+			differentCount,
+			nowValue,
+			lastValue,
+		)
+
+		h.Log.Info().
+			Str("channel", "summary").
+			Str("event", "different value").
+			Int64("user_id", element.ChatID).
+			Msg("Send summary message")
+
+		if _, err := h.Bot.Send(msg); err != nil {
+			panic(err)
+		}
+	}
+}
+
+func (h Handler) getDifferentString(local float64, remote float64) string {
+	differentString := models.DifferenceGrown
+	if local > remote {
+		differentString = models.DifferenceDecreased
+	}
+
+	return differentString
 }
 
 func (h Handler) getJson(url string, target interface{}) error {
