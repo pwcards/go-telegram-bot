@@ -83,7 +83,6 @@ func (h Handler) GetData() (*models.ValutesModelDB, error) {
 }
 
 func (h Handler) CheckValueChanges(localModel, remoteModel *models.ValutesModelDB) {
-	differentCount := math.Abs(localModel.Usd - remoteModel.Usd)
 	listSummary, err := h.SummaryRepository.GetListSummary()
 	if err != nil {
 		return
@@ -94,7 +93,7 @@ func (h Handler) CheckValueChanges(localModel, remoteModel *models.ValutesModelD
 			listSummary,
 			models.ValuteUSD,
 			h.getDifferentString(localModel.Usd, remoteModel.Usd),
-			differentCount,
+			math.Abs(localModel.Usd-remoteModel.Usd),
 			localModel.Usd,
 			remoteModel.Usd,
 		)
@@ -105,7 +104,7 @@ func (h Handler) CheckValueChanges(localModel, remoteModel *models.ValutesModelD
 			listSummary,
 			models.ValuteEUR,
 			h.getDifferentString(localModel.Eur, remoteModel.Eur),
-			differentCount,
+			math.Abs(localModel.Eur-remoteModel.Eur),
 			localModel.Eur,
 			remoteModel.Eur,
 		)
@@ -116,7 +115,7 @@ func (h Handler) CheckValueChanges(localModel, remoteModel *models.ValutesModelD
 			listSummary,
 			models.ValuteGBP,
 			h.getDifferentString(localModel.Gbp, remoteModel.Gbp),
-			differentCount,
+			math.Abs(localModel.Gbp-remoteModel.Gbp),
 			localModel.Gbp,
 			remoteModel.Gbp,
 		)
