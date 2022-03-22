@@ -23,6 +23,7 @@ func (h Handler) GetKeyboardTime() telegramApi.InlineKeyboardMarkup {
 			telegramApi.NewInlineKeyboardButtonData(models.GetTimeMapValue(models.TimeKeySend08), models.TimeKeySend08),
 			telegramApi.NewInlineKeyboardButtonData(models.GetTimeMapValue(models.TimeKeySend09), models.TimeKeySend09),
 			telegramApi.NewInlineKeyboardButtonData(models.GetTimeMapValue(models.TimeKeySend10), models.TimeKeySend10),
+			telegramApi.NewInlineKeyboardButtonData("Отключить", "active_0"),
 		),
 	)
 }

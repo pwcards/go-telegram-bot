@@ -6,10 +6,16 @@ rebuild_app:
 rebuild_database:
 	docker-compose up -d --no-deps --build database
 
+# Restart all project
 restart:
 	docker-compose stop $(c)
 	docker-compose up -d $(c)
 
+# Show log app
+log_app:
+	docker-compose logs -f -t app
+
+# Show container list
 ps:
 	docker-compose ps
 

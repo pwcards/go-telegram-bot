@@ -25,7 +25,7 @@ func (h *Handler) MessageHandler() error {
 	// вычитываем их и обрабатываем
 	for update := range updates {
 		if update.CallbackQuery != nil {
-			err := h.CallBackSwitch(h.Bot, update.CallbackQuery)
+			err := h.CallBackSwitch(update.CallbackQuery)
 			if err != nil {
 				return errors.Wrap(err, "save callback start_time")
 			}

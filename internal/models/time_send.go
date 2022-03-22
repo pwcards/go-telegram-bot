@@ -1,9 +1,10 @@
 package models
 
 const (
-	TimeKeySend08 = "start_08"
-	TimeKeySend09 = "start_09"
-	TimeKeySend10 = "start_10"
+	TimeKeySend08    = "start_08"
+	TimeKeySend09    = "start_09"
+	TimeKeySend10    = "start_10"
+	TimeKeyNotActive = "active_0"
 )
 
 type TimeSend struct {

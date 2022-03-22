@@ -25,6 +25,7 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: ${TIMEZONE}
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -35,6 +36,7 @@ services:
       PMA_HOST: database
       PMA_PORT: ${PORT_DATABASE}
       PMA_ARBITRARY: 1
+      TZ: ${TIMEZONE}
     restart: always
     ports:
       - ${PORT_PHPMYADMIN}:80

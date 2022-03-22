@@ -54,14 +54,15 @@ func Execute() {
 	)
 	cronWorker.Run()
 
+	// Init general message handler
 	err = h.MessageHandler()
 	if err != nil {
 		logger.Panic().Err(err)
 	}
 }
 
+// startBot init bot telegram
 func startBot(Cfg *models.Config) (*telegramApi.BotAPI, error) {
-	// Создание бота
 	bot, err := telegramApi.NewBotAPI(Cfg.Telegram.Token)
 	if err != nil {
 		return &telegramApi.BotAPI{}, err

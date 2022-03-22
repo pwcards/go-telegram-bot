@@ -26,11 +26,12 @@ create index message_user_user_id_index
 
 create table telegram_bot_valute.summary
 (
-    id          int auto_increment
+    id            int auto_increment
         primary key,
-    user_id     int         not null,
-    chat_id     int         null,
-    time_action varchar(32) null,
+    user_id       int           not null,
+    chat_id       int           null,
+    time_action   varchar(32)   null,
+    active_status int default 0 not null,
     constraint summary_user_id_uindex
         unique (user_id)
 );
