@@ -8,6 +8,8 @@ import (
 	"github.com/pwcards/go-telegram-bot/internal/models"
 )
 
+const RunCronEveryMinuteRemote = 5
+
 type cronWorker struct {
 	handler *handler.Handler
 }
@@ -26,8 +28,8 @@ func (w *cronWorker) Run() {
 		Str("channel", "cron").
 		Msg("[CRON] start")
 
-	// Получение данных из удаленного источника (каждые 7 минут)
-	_, err = s.Every(7).Minute().Do(
+	// Получение данных из удаленного источника
+	_, err = s.Every(RunCronEveryMinuteRemote).Minute().Do(
 		func() {
 			_, err := w.handler.GetCurrentValute()
 			if err != nil {
