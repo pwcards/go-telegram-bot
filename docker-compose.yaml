@@ -40,3 +40,11 @@ services:
     restart: always
     ports:
       - ${PORT_PHPMYADMIN}:80
+
+  dozzle:
+    container_name: dozzle
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - ${PORT_DOZZLE}:8080
