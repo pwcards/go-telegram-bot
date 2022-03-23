@@ -9,6 +9,7 @@ services:
       - "8000:8000"
     environment:
       DD_DB_HOST: database
+    restart: always
     depends_on:
       - database
 
@@ -44,6 +45,7 @@ services:
   dozzle:
     container_name: dozzle
     image: amir20/dozzle:latest
+    restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
