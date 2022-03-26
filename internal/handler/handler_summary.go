@@ -25,7 +25,7 @@ func (h Handler) SendSummaryList(key string) {
 			msg := telegramApi.NewMessage(element.ChatID, "")
 			msg.Text = fmt.Sprintf(
 				models.ReplyEveryDaySummary,
-				time.Now().Format("2006-01-02"),
+				time.Now().Format("02.01.2006"),
 				models.GetValuteItemNameEmoji(models.ValuteUSD),
 				valute.Usd,
 				models.GetValuteItemNameEmoji(models.ValuteEUR),

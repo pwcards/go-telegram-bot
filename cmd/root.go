@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	telegramApi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -15,6 +16,12 @@ import (
 func Execute() {
 	// Start logger
 	logger := zerolog.New(os.Stderr).With().Timestamp().Logger()
+
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("[RECOVERED]. Error:", r)
+		}
+	}()
 
 	// Generate our config based on the config supplied
 	// by the user in the flags
